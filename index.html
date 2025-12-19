@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+        }
+
+        html,
+        body {
+            overflow-y: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        body::-webkit-scrollbar {
+            display: none;
+        }
+
+        body {
+            background: #f9f9f9;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .tour-wrapper {
+            background: #f4f2fb;
+            border-radius: 22px;
+            padding: 30px;
+            max-width: 1000px;
+            width: 100%;
+            margin: 0 auto;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        h3 {
+            margin-bottom: 15px;
+            color: #2e2e2e;
+            text-align: center;
+            font-size: 1.4rem;
+        }
+
+        .step {
+            margin-bottom: 35px;
+            text-align: center;
+        }
+
+        .pill-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .pill {
+            padding: 12px 28px;
+            border-radius: 30px;
+            border: 2px solid #aa8935;
+            background: transparent;
+            cursor: pointer;
+            color: #2e2e2e;
+            font-weight: 500;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .pill:hover {
+            background: rgba(170, 137, 53, 0.1);
+        }
+
+        .pill.active {
+            background: #aa8935;
+            color: #fff;
+            border-color: #aa8935;
+        }
+
+        .dates-section {
+            margin-top: 20px;
+        }
+
+        .month-box {
+            background: #ebe8f6;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .month-header {
+            padding: 18px 22px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #e3e0f0;
+            font-size: 1.1rem;
+            color: #333;
+            position: relative;
+        }
+
+        .dropdown-icon {
+            width: 24px;
+            height: 24px;
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+
+        .dropdown-icon::before,
+        .dropdown-icon::after {
+            content: '';
+            position: absolute;
+            background-color: #aa8935;
+            border-radius: 2px;
+        }
+
+        .dropdown-icon::before {
+            width: 14px;
+            height: 2px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .dropdown-icon::after {
+            width: 2px;
+            height: 14px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: height 0.3s ease;
+        }
+
+        .month-box.open .dropdown-icon {
+            transform: rotate(45deg);
+        }
+
+        .month-box.open .dropdown-icon::after {
+            height: 0;
+        }
+
+        .month-content {
+            display: none;
+            padding: 0;
+        }
+
+        .month-box.open .month-content {
+            display: block;
+        }
+
+        .date-row {
+            display: grid;
+            grid-template-columns: 1.5fr 0.8fr 1fr 1fr auto;
+            align-items: center;
+            padding: 16px 22px;
+            border-top: 1px solid #ddd;
+            font-size: 15px;
+            gap: 10px;
+        }
+
+        .badge {
+            border: 2px solid #aa8935;
+            border-radius: 20px;
+            padding: 5px 14px;
+            font-size: 13px;
+            width: fit-content;
+            font-weight: bold;
+            color: #aa8935;
+            background: rgba(170, 137, 53, 0.1);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status {
+            color: #555;
+            font-weight: 500;
+        }
+
+        .price {
+            color: #333;
+            font-weight: 500;
+        }
+
+        .book-btn {
+            background: #aa8935;
+            border: 1px solid #000;
+            color: #fff;
+            padding: 10px 24px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .book-btn:hover {
+            background: #94752d;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .show-more-btn {
+            background: #aa8935;
+            border: 1px solid #000;
+            color: #fff;
+            padding: 12px 30px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 15px;
+            display: block;
+            margin: 30px auto 0;
+            transition: all 0.3s ease;
+        }
+
+        .show-more-btn:hover {
+            background: #94752d;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .date-range {
+            font-weight: 500;
+            color: #333;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .tour-wrapper {
+                padding: 20px;
+            }
+
+            .date-row {
+                grid-template-columns: 1fr;
+                gap: 12px;
+                text-align: center;
+            }
+
+            .date-row>* {
+                justify-self: center;
+            }
+
+            .pill-group {
+                gap: 8px;
+            }
+
+            .pill {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+
+            .month-header {
+                padding: 15px 18px;
+                font-size: 1rem;
+            }
+
+            h3 {
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .tour-wrapper {
+                padding: 15px;
+            }
+
+            .pill {
+                padding: 8px 16px;
+                font-size: 13px;
+                flex: 1;
+                min-width: 100px;
+            }
+
+            .pill-group {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .book-btn,
+            .show-more-btn {
+                width: 100%;
+                max-width: 200px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="tour-wrapper">
+        <div class="step travel-step">
+            <h3>Choose Travel Option</h3>
+            <div class="pill-group">
+                <button class="pill" data-type="private">Private</button>
+                <button class="pill" data-type="semiprivate">Semiprivate</button>
+                <button class="pill" data-type="group">Group</button>
+            </div>
+        </div>
+
+        <div class="step season-step">
+            <h3>Select Season</h3>
+            <div class="pill-group">
+                <button class="pill" data-season="spring">Spring</button>
+                <button class="pill" data-season="summer">Summer</button>
+                <button class="pill" data-season="autumn">Autumn</button>
+            </div>
+        </div>
+
+        <div class="dates-section"></div>
+
+        <button class="show-more-btn" id="showMoreBtn" style="display: none;">Show More Dates</button>
+    </div>
+
+    <script>
+        let selectedType = null;
+        let selectedSeason = null;
+        let visibleMonths = 3;
+
+        const seasonData = {
+            spring: {
+                months: ["March", "April", "May"],
+                dates: [
+                    { month: "March", start: "12", end: "22", year: "2026", id: "spring-m1" },
+                    { month: "March", start: "15", end: "25", year: "2026", id: "spring-m2" },
+                    { month: "March", start: "17", end: "27", year: "2026", id: "spring-m3" },
+                    { month: "April", start: "5", end: "15", year: "2026", id: "spring-a1" },
+                    { month: "April", start: "8", end: "18", year: "2026", id: "spring-a2" },
+                    { month: "April", start: "12", end: "22", year: "2026", id: "spring-a3" },
+                    { month: "May", start: "3", end: "13", year: "2026", id: "spring-may1" },
+                    { month: "May", start: "7", end: "17", year: "2026", id: "spring-may2" },
+                    { month: "May", start: "10", end: "20", year: "2026", id: "spring-may3" }
+                ]
+            },
+            summer: {
+                months: ["May", "June"],
+                dates: [
+                    { month: "May", start: "12", end: "22", year: "2026", id: "summer-m1" },
+                    { month: "May", start: "14", end: "24", year: "2026", id: "summer-m2" },
+                    { month: "May", start: "21", end: "1", nextMonth: "June", year: "2026", id: "summer-mj1" }
+                ]
+            },
+            autumn: {
+                months: ["September", "October", "November"],
+                dates: [
+                    { month: "September", start: "4", end: "14", year: "2026", id: "autumn-s1" },
+                    { month: "September", start: "7", end: "17", year: "2026", id: "autumn-s2" },
+                    { month: "September", start: "10", end: "20", year: "2026", id: "autumn-s3" },
+                    { month: "October", start: "5", end: "15", year: "2026", id: "autumn-o1" },
+                    { month: "October", start: "7", end: "17", year: "2026", id: "autumn-o2" },
+                    { month: "October", start: "10", end: "20", year: "2026", id: "autumn-o3" },
+                    { month: "November", start: "5", end: "15", year: "2026", id: "autumn-n1" },
+                    { month: "November", start: "7", end: "17", year: "2026", id: "autumn-n2" },
+                    { month: "November", start: "10", end: "20", year: "2026", id: "autumn-n3" }
+                ]
+            }
+        };
+
+        const priceConfig = {
+            private: { spring: 500, summer: 600, autumn: 450 },
+            semiprivate: { spring: 400, summer: 480, autumn: 360 },
+            group: { spring: 300, summer: 360, autumn: 270 }
+        };
+
+        function renderDates() {
+            const datesSection = document.querySelector('.dates-section');
+
+            if (!selectedSeason) {
+                datesSection.innerHTML = '<p style="text-align: center; color: #666; padding: 40px;">Please select a season to view available dates.</p>';
+                return;
+            }
+
+            const data = seasonData[selectedSeason];
+            const months = data.months;
+            const allDates = data.dates;
+
+            const monthsToShow = months.slice(0, visibleMonths);
+
+            let html = '';
+
+            monthsToShow.forEach(monthName => {
+                const monthDates = allDates.filter(date => date.month === monthName);
+
+                if (monthDates.length === 0) return;
+
+                html += `
+                    <div class="month-box">
+                        <div class="month-header">
+                            ${monthName}
+                            <div class="dropdown-icon"></div>
+                        </div>
+                        <div class="month-content">
+                            ${monthDates.map(date => {
+                    const price = selectedType && selectedSeason ? priceConfig[selectedType][selectedSeason] : '--';
+                    const dateRange = date.nextMonth
+                        ? `${monthName} ${date.start} – ${date.nextMonth} ${date.end}, ${date.year}`
+                        : `${monthName} ${date.start} – ${date.end}, ${date.year}`;
+
+                    return `
+                                    <div class="date-row" data-date-id="${date.id}">
+                                        <span class="date-range">${dateRange}</span>
+                                        <span class="badge">Sale</span>
+                                        <span class="status">Available</span>
+                                        <span class="price">CAD $${price}</span>
+                                        <button class="book-btn" onclick="handleBookClick('${date.id}')">Book Now</button>
+                                    </div>
+                                `;
+                }).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            datesSection.innerHTML = html || '<p style="text-align: center; color: #666;">No dates available.</p>';
+
+            document.querySelectorAll(".month-header").forEach(h => {
+                h.onclick = (e) => {
+                    e.stopPropagation();
+                    const monthBox = h.parentElement;
+                    monthBox.classList.toggle("open");
+                };
+            });
+
+            const showMoreBtn = document.getElementById('showMoreBtn');
+            if (visibleMonths >= months.length) {
+                showMoreBtn.style.display = 'none';
+            } else {
+                showMoreBtn.style.display = 'block';
+            }
+        }
+
+        function handleBookClick(dateId) {
+            if (!selectedType || !selectedSeason) {
+                alert("Please select both travel option and season first.");
+                return;
+            }
+
+            const dateObj = seasonData[selectedSeason].dates.find(d => d.id === dateId);
+            if (!dateObj) return;
+
+            const price = priceConfig[selectedType][selectedSeason];
+
+            const bookingData = {
+                tourType: selectedType,
+                season: selectedSeason,
+                date: dateObj.nextMonth
+                    ? `${dateObj.month} ${dateObj.start} – ${dateObj.nextMonth} ${dateObj.end}, ${dateObj.year}`
+                    : `${dateObj.month} ${dateObj.start} – ${dateObj.end}, ${dateObj.year}`,
+                price: price,
+                dateId: dateObj.id
+            };
+            localStorage.setItem('tourBookingData', JSON.stringify(bookingData));
+
+            const baseURL = 'https://www.silknomads.com/booking';
+            const params = new URLSearchParams();
+            params.append('tourType', selectedType);
+            params.append('season', selectedSeason);
+            params.append('dateId', dateObj.id);
+            params.append('price', price);
+            params.append('date', encodeURIComponent(bookingData.date));
+
+            const redirectURL = `${baseURL}?${params.toString()}`;
+
+            if (window.top !== window.self) {
+                window.top.location.href = redirectURL;
+            } else {
+                window.location.href = redirectURL;
+            }
+        }
+
+        document.querySelectorAll(".travel-step .pill").forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll(".travel-step .pill").forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+                selectedType = btn.dataset.type;
+                if (selectedSeason) renderDates();
+            };
+        });
+
+        document.querySelectorAll(".season-step .pill").forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll(".season-step .pill").forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+                selectedSeason = btn.dataset.season;
+                visibleMonths = 3;
+                renderDates();
+            };
+        });
+
+        document.getElementById('showMoreBtn').onclick = () => {
+            const months = seasonData[selectedSeason].months;
+            visibleMonths = Math.min(visibleMonths + 3, months.length);
+            renderDates();
+        };
+
+        function initPage() {
+            renderDates();
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const tourType = urlParams.get('tourType');
+            const season = urlParams.get('season');
+
+            if (tourType && season) {
+                const typeBtn = document.querySelector(`.travel-step .pill[data-type="${tourType}"]`);
+                const seasonBtn = document.querySelector(`.season-step .pill[data-season="${season}"]`);
+
+                if (typeBtn && seasonBtn) {
+                    typeBtn.click();
+                    seasonBtn.click();
+                }
+            }
+        }
+
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'GET_BOOKING_DATA') {
+                const data = localStorage.getItem('tourBookingData');
+                if (data) {
+                    event.source.postMessage({
+                        type: 'BOOKING_DATA_RESPONSE',
+                        data: JSON.parse(data)
+                    }, event.origin);
+                }
+            }
+        });
+
+        initPage();
+    </script>
+</body>
+
+</html>
