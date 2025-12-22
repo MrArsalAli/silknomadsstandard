@@ -44,6 +44,131 @@
             font-size: 1.4rem;
         }
 
+        .date-row {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 0.8fr 0.8fr 1fr auto;
+            align-items: center;
+            padding: 16px 22px;
+            border-top: 1px solid #ddd;
+            font-size: 14px;
+            gap: 8px;
+            white-space: nowrap;
+            min-width: 0;
+        }
+
+        .date-row>* {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Make all elements fit in one line */
+        .date-range,
+        .regular-price,
+        .status,
+        .sale-tag,
+        .sale-price,
+        .book-btn {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sale-tag {
+            border: 2px solid #aa8935;
+            border-radius: 20px;
+            padding: 4px 8px;
+            font-size: 11px;
+            font-weight: bold;
+            color: #aa8935;
+            background: rgba(170, 137, 53, 0.1);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .book-btn {
+            background: #aa8935;
+            border: 1px solid #000;
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        /* Regular price style */
+        .regular-price {
+            color: #666;
+            font-weight: 500;
+            text-decoration: line-through;
+            font-size: 14px;
+        }
+
+        /* Sale price style */
+        .sale-price {
+            color: #aa8935;
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        /* Status style */
+        .status {
+            color: #555;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        /* Responsive adjustments - mobile pe vertical rahe */
+        @media (max-width: 768px) {
+            .date-row {
+                grid-template-columns: 1fr;
+                gap: 12px;
+                text-align: center;
+                white-space: normal;
+            }
+
+            .date-row>* {
+                justify-self: center;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .date-row {
+                grid-template-columns: 1.5fr 1fr 0.8fr 0.8fr 1fr auto;
+                font-size: 13px;
+                gap: 6px;
+                padding: 12px 16px;
+            }
+
+            .book-btn {
+                padding: 6px 12px;
+                font-size: 11px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .date-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+                text-align: center;
+            }
+        }
+
+        .sale-tag {
+            font-size: 11px;
+            padding: 4px 8px;
+        }
+
+        .regular-price,
+        .sale-price,
+        .status {
+            font-size: 13px;
+        }
+
         .step {
             margin-bottom: 35px;
             text-align: center;
@@ -153,15 +278,6 @@
             display: block;
         }
 
-        .date-row {
-            display: grid;
-            grid-template-columns: 1.5fr 0.8fr 1fr 1fr auto;
-            align-items: center;
-            padding: 16px 22px;
-            border-top: 1px solid #ddd;
-            font-size: 15px;
-            gap: 10px;
-        }
 
         .badge {
             border: 2px solid #aa8935;
@@ -186,22 +302,24 @@
             font-weight: 500;
         }
 
-        .book-btn {
-            background: #aa8935;
-            border: 1px solid #000;
-            color: #fff;
-            padding: 10px 24px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
         .book-btn:hover {
             background: #94752d;
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .book-btn {
+            background: #aa8935;
+            border: 1px solid #000;
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            min-width: 80px;
         }
 
         .show-more-btn {
@@ -224,9 +342,12 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
-        .date-range {
-            font-weight: 500;
-            color: #333;
+        .date-range,
+        .regular-price,
+        .status,
+        .sale-price {
+            font-size: 13px;
+            white-space: nowrap;
         }
 
         @media (max-width: 768px) {
@@ -362,10 +483,18 @@
             }
         };
 
-        const priceConfig = {
-            private: { spring: 500, summer: 600, autumn: 450 },
-            semiprivate: { spring: 400, summer: 480, autumn: 360 },
-            group: { spring: 300, summer: 360, autumn: 270 }
+        // Regular Prices
+        const regularPrices = {
+            private: { spring: 3299, summer: 3299, autumn: 3299 },
+            semiprivate: { spring: 3099, summer: 3099, autumn: 3099 },
+            group: { spring: 2899, summer: 2899, autumn: 2899 }
+        };
+
+        // Sale Prices (20% off)
+        const salePrices = {
+            private: { spring: 2639, summer: 2639, autumn: 2639 },
+            semiprivate: { spring: 2479, summer: 2479, autumn: 2479 },
+            group: { spring: 2319, summer: 2319, autumn: 2319 }
         };
 
         function renderDates() {
@@ -390,31 +519,33 @@
                 if (monthDates.length === 0) return;
 
                 html += `
-                    <div class="month-box">
-                        <div class="month-header">
-                            ${monthName}
-                            <div class="dropdown-icon"></div>
-                        </div>
-                        <div class="month-content">
-                            ${monthDates.map(date => {
-                    const price = selectedType && selectedSeason ? priceConfig[selectedType][selectedSeason] : '--';
+            <div class="month-box">
+                <div class="month-header">
+                    ${monthName}
+                    <div class="dropdown-icon"></div>
+                </div>
+                <div class="month-content">
+                    ${monthDates.map(date => {
+                    const regularPrice = selectedType && selectedSeason ? regularPrices[selectedType][selectedSeason] : '--';
+                    const salePrice = selectedType && selectedSeason ? salePrices[selectedType][selectedSeason] : '--';
                     const dateRange = date.nextMonth
-                        ? `${monthName} ${date.start} – ${date.nextMonth} ${date.end}, ${date.year}`
-                        : `${monthName} ${date.start} – ${date.end}, ${date.year}`;
+                        ? `${monthName.substring(0, 3)} ${date.start}-${date.end} ${date.year}`
+                        : `${monthName.substring(0, 3)} ${date.start}-${date.end} ${date.year}`;
 
                     return `
-                                    <div class="date-row" data-date-id="${date.id}">
-                                        <span class="date-range">${dateRange}</span>
-                                        <span class="badge">Sale</span>
-                                        <span class="status">Available</span>
-                                        <span class="price">CAD $${price}</span>
-                                        <button class="book-btn" onclick="handleBookClick('${date.id}')">Book Now</button>
-                                    </div>
-                                `;
+    <div class="date-row" data-date-id="${date.id}">
+        <span class="date-range">${dateRange}</span>
+        <span class="regular-price">$${regularPrice}</span>
+        <span class="status">Available</span>
+        <span class="sale-tag">20% OFF</span>
+        <span class="sale-price">$${salePrice}</span>
+        <button class="book-btn" onclick="handleBookClick('${date.id}')">Book Now</button>
+    </div>
+`;
                 }).join('')}
-                        </div>
-                    </div>
-                `;
+                </div>
+            </div>
+        `;
             });
 
             datesSection.innerHTML = html || '<p style="text-align: center; color: #666;">No dates available.</p>';
@@ -444,7 +575,8 @@
             const dateObj = seasonData[selectedSeason].dates.find(d => d.id === dateId);
             if (!dateObj) return;
 
-            const price = priceConfig[selectedType][selectedSeason];
+            const regularPrice = regularPrices[selectedType][selectedSeason];
+            const salePrice = salePrices[selectedType][selectedSeason];
 
             const bookingData = {
                 tourType: selectedType,
@@ -452,7 +584,8 @@
                 date: dateObj.nextMonth
                     ? `${dateObj.month} ${dateObj.start} – ${dateObj.nextMonth} ${dateObj.end}, ${dateObj.year}`
                     : `${dateObj.month} ${dateObj.start} – ${dateObj.end}, ${dateObj.year}`,
-                price: price,
+                regularPrice: regularPrice,
+                salePrice: salePrice,
                 dateId: dateObj.id
             };
             localStorage.setItem('tourBookingData', JSON.stringify(bookingData));
@@ -462,7 +595,8 @@
             params.append('tourType', selectedType);
             params.append('season', selectedSeason);
             params.append('dateId', dateObj.id);
-            params.append('price', price);
+            params.append('regularPrice', regularPrice);
+            params.append('salePrice', salePrice);
             params.append('date', encodeURIComponent(bookingData.date));
 
             const redirectURL = `${baseURL}?${params.toString()}`;
