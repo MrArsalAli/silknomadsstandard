@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -216,6 +215,25 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
         }
 
+        .description-box {
+            display: none;
+            background: #fff;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 800px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid #aa8935;
+            transition: all 0.3s ease;
+        }
+
+        .description-text {
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            font-size: 15px;
+        }
+
         .month-header {
             padding: 18px 22px;
             font-weight: bold;
@@ -350,6 +368,29 @@
             white-space: nowrap;
         }
 
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            10%,
+            30%,
+            50%,
+            70%,
+            90% {
+                transform: translateX(-5px);
+            }
+
+            20%,
+            40%,
+            60%,
+            80% {
+                transform: translateX(5px);
+            }
+        }
+
         @media (max-width: 768px) {
             body {
                 padding: 10px;
@@ -413,7 +454,6 @@
         }
     </style>
 </head>
-
 <body>
     <div class="tour-wrapper">
         <div class="step travel-step">
@@ -423,6 +463,10 @@
                 <button class="pill" data-type="semiprivate">Semiprivate</button>
                 <button class="pill" data-type="group">Group</button>
             </div>
+        </div>
+        <div class="description-box" id="descriptionBox"
+            style="display: none; background: #fff; border-radius: 16px; padding: 20px; margin: 20px auto; max-width: 800px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 4px solid #aa8935;">
+            <p id="descriptionText" style="color: #333; line-height: 1.6; margin: 0;"></p>
         </div>
 
         <div class="step season-step">
@@ -436,7 +480,6 @@
 
         <div class="dates-section"></div>
 
-        <button class="show-more-btn" id="showMoreBtn" style="display: none;">Show More Dates</button>
     </div>
 
     <script>
@@ -483,6 +526,11 @@
             }
         };
 
+        const travelDescriptions = {
+            private: "2 people<br><br>Crafted for travelers seeking an exclusive, high-end experience, this option offers complete privacy, private transportation, and a dedicated guide.",
+            semiprivate: "4 people<br><br>Ideal for travelers who appreciate comfort and quality but are happy to share the journey with a few like-minded guests. This option provides shared transportation, and guided services in a very small group, ensuring a more intimate and relaxed experience than standard group tours.",
+            group: "Designed for sociable travelers, this option offers shared transportation and guided services. It is the most budget-friendly way to discover Uzbekistan while enjoying the camaraderie of fellow travelers."
+        };
         // Regular Prices
         const regularPrices = {
             private: { spring: 3299, summer: 3299, autumn: 3299 },
@@ -557,18 +605,20 @@
                     monthBox.classList.toggle("open");
                 };
             });
-
-            const showMoreBtn = document.getElementById('showMoreBtn');
-            if (visibleMonths >= months.length) {
-                showMoreBtn.style.display = 'none';
-            } else {
-                showMoreBtn.style.display = 'block';
-            }
         }
 
         function handleBookClick(dateId) {
             if (!selectedType || !selectedSeason) {
-                alert("Please select both travel option and season first.");
+                // Alert ki jagah button ko highlight karo
+                if (!selectedType) {
+                    document.querySelector('.travel-step').style.border = '2px solid #ff0000';
+                    document.querySelector('.travel-step').style.borderRadius = '10px';
+                    document.querySelector('.travel-step').style.padding = '10px';
+                    setTimeout(() => {
+                        document.querySelector('.travel-step').style.border = '';
+                        document.querySelector('.travel-step').style.padding = '';
+                    }, 2000);
+                }
                 return;
             }
 
@@ -613,12 +663,26 @@
                 document.querySelectorAll(".travel-step .pill").forEach(b => b.classList.remove("active"));
                 btn.classList.add("active");
                 selectedType = btn.dataset.type;
+
+                // Description show karo
+                const descriptionBox = document.getElementById('descriptionBox');
+                const descriptionText = document.getElementById('descriptionText');
+                descriptionText.innerHTML = travelDescriptions[selectedType];
+                descriptionBox.style.display = 'block';
+
                 if (selectedSeason) renderDates();
             };
         });
 
         document.querySelectorAll(".season-step .pill").forEach(btn => {
             btn.onclick = () => {
+                if (!selectedType) {
+                    // Alert ki jagah visual feedback dein
+                    btn.style.animation = 'shake 0.5s';
+                    setTimeout(() => btn.style.animation = '', 500);
+                    return;
+                }
+
                 document.querySelectorAll(".season-step .pill").forEach(b => b.classList.remove("active"));
                 btn.classList.add("active");
                 selectedSeason = btn.dataset.season;
@@ -627,11 +691,6 @@
             };
         });
 
-        document.getElementById('showMoreBtn').onclick = () => {
-            const months = seasonData[selectedSeason].months;
-            visibleMonths = Math.min(visibleMonths + 3, months.length);
-            renderDates();
-        };
 
         function initPage() {
             renderDates();
@@ -666,5 +725,4 @@
         initPage();
     </script>
 </body>
-
 </html>
