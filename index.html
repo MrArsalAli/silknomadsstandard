@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -454,6 +455,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="tour-wrapper">
         <div class="step travel-step">
@@ -609,7 +611,6 @@
 
         function handleBookClick(dateId) {
             if (!selectedType || !selectedSeason) {
-                // Alert ki jagah button ko highlight karo
                 if (!selectedType) {
                     document.querySelector('.travel-step').style.border = '2px solid #ff0000';
                     document.querySelector('.travel-step').style.borderRadius = '10px';
@@ -628,34 +629,259 @@
             const regularPrice = regularPrices[selectedType][selectedSeason];
             const salePrice = salePrices[selectedType][selectedSeason];
 
+            // 1. PAGE NAME (Current URL se)
+            const pagePath = window.location.pathname;
+            const pageName = pagePath.split('/').pop();
+            console.log('📄 Page Name:', pageName);
+
+            // 2. TOUR DURATION PAGE NAME SE
+            let tourDuration = 10; // Default
+            if (pageName.includes('12')) tourDuration = 12;
+            else if (pageName.includes('14')) tourDuration = 14;
+            else if (pageName.includes('7')) tourDuration = 7;
+            else if (pageName.includes('5')) tourDuration = 5;
+
+            console.log('⏳ Tour Duration:', tourDuration, 'days');
+
+            // 3. DYNAMIC DATES CALCULATION
+            const monthNames = {
+                "January": 0, "February": 1, "March": 2, "April": 3, "May": 4, "June": 5,
+                "July": 6, "August": 7, "September": 8, "October": 9, "November": 10, "December": 11
+            };
+
+            const monthNumber = monthNames[dateObj.month];
+            const selectedYear = parseInt(dateObj.year);
+            const startDay = parseInt(dateObj.start);
+
+            // START DATE (Selected date se)
+            const startDate = new Date(selectedYear, monthNumber, startDay);
+
+            // END DATE (Start date + duration - 1)
+            const endDate = new Date(startDate);
+            endDate.setDate(endDate.getDate() + (tourDuration - 1));
+
+            // 4. FORMAT DATES
+            const formattedStartDate = startDate.getFullYear() + '-' +
+                String(startDate.getMonth() + 1).padStart(2, '0') + '-' +
+                String(startDate.getDate()).padStart(2, '0');
+
+            const formattedEndDate = endDate.getFullYear() + '-' +
+                String(endDate.getMonth() + 1).padStart(2, '0') + '-' +
+                String(endDate.getDate()).padStart(2, '0');
+
+            // 5. COMPLETE BOOKING DATA
             const bookingData = {
+                // Dynamic data
+                pageName: pageName,
                 tourType: selectedType,
                 season: selectedSeason,
-                date: dateObj.nextMonth
-                    ? `${dateObj.month} ${dateObj.start} – ${dateObj.nextMonth} ${dateObj.end}, ${dateObj.year}`
-                    : `${dateObj.month} ${dateObj.start} – ${dateObj.end}, ${dateObj.year}`,
+                dateId: dateObj.id,
+                daysCount: tourDuration,
+
+                // Dates
+                startDate: formattedStartDate,
+                endDate: formattedEndDate,
+                displayStartDate: formatDate(startDate),
+                displayEndDate: formatDate(endDate),
+
+                // Pricing
                 regularPrice: regularPrice,
                 salePrice: salePrice,
-                dateId: dateObj.id
-            };
-            localStorage.setItem('tourBookingData', JSON.stringify(bookingData));
 
+                // Original
+                selectedDate: dateObj.nextMonth
+                    ? `${dateObj.month} ${dateObj.start} – ${dateObj.nextMonth} ${dateObj.end}, ${dateObj.year}`
+                    : `${dateObj.month} ${dateObj.start} – ${dateObj.end}, ${dateObj.year}`
+            };
+
+            console.log('📦 FINAL BOOKING DATA:', bookingData);
+
+            // 6. LOCALSTORAGE MEIN SAVE (2 places)
+            localStorage.setItem('tourBookingData', JSON.stringify(bookingData));
+            localStorage.setItem('bk', JSON.stringify({
+                p: pageName,
+                t: selectedType,
+                d: tourDuration,
+                sd: formattedStartDate,
+                ed: formattedEndDate,
+                sp: salePrice,
+                ds: formatDate(startDate),
+                de: formatDate(endDate)
+            }));
+
+            console.log('💾 Saved to localStorage');
+
+            // 7. SIMPLE REDIRECT
             const baseURL = 'https://www.silknomads.com/booking';
             const params = new URLSearchParams();
-            params.append('tourType', selectedType);
-            params.append('season', selectedSeason);
-            params.append('dateId', dateObj.id);
-            params.append('regularPrice', regularPrice);
-            params.append('salePrice', salePrice);
-            params.append('date', encodeURIComponent(bookingData.date));
+
+            // Only essential parameters
+            params.append('p', pageName);
+            params.append('t', selectedType);
+            params.append('d', tourDuration);
+            params.append('sd', formattedStartDate);
+            params.append('ed', formattedEndDate);
+            params.append('sp', salePrice);
 
             const redirectURL = `${baseURL}?${params.toString()}`;
+            console.log('🔗 Redirect URL:', redirectURL);
 
-            if (window.top !== window.self) {
-                window.top.location.href = redirectURL;
-            } else {
-                window.location.href = redirectURL;
+            // 8. REDIRECT
+            window.location.href = redirectURL;
+        }
+
+        // Helper function to format date
+        function formatDate(date) {
+            const monthNames = [
+                "January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"
+            ];
+            return `${date.getDate()} ${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+        }
+
+        // ==================== UPDATED DYNAMIC DATE CALCULATION ====================
+
+        function calculateTourDates(dateObj, pageName) {
+            console.log(' Calculating dynamic dates...');
+
+            // 1. GET SELECTED DATE INFO
+            const selectedMonth = dateObj.month;
+            const selectedYear = parseInt(dateObj.year);
+            const startDay = parseInt(dateObj.start);
+
+            // Month name to number
+            const monthNames = {
+                "January": 0, "February": 1, "March": 2, "April": 3, "May": 4, "June": 5,
+                "July": 6, "August": 7, "September": 8, "October": 9, "November": 10, "December": 11
+            };
+
+            const monthNumber = monthNames[selectedMonth];
+
+            // 2. CREATE START DATE FROM SELECTED DATE
+            const startDate = new Date(selectedYear, monthNumber, startDay);
+            console.log('Dynamic Start Date:', startDate);
+
+            // 3. DETERMINE TOUR DURATION FROM PAGE NAME
+            let tourDuration = 10; // Default
+
+            if (pageName.includes('12') || pageName.includes('twelve')) {
+                tourDuration = 12;
+                console.log(' 12-day package detected');
             }
+            else if (pageName.includes('14') || pageName.includes('fourteen')) {
+                tourDuration = 14;
+                console.log(' 14-day package detected');
+            }
+            else if (pageName.includes('7') || pageName.includes('seven')) {
+                tourDuration = 7;
+                console.log(' 7-day package detected');
+            }
+            else if (pageName.includes('5') || pageName.includes('five')) {
+                tourDuration = 5;
+                console.log(' 5-day package detected');
+            }
+            else {
+                console.log(' 10-day package (default)');
+            }
+
+            // 4. CALCULATE END DATE (Start date + duration - 1)
+            const endDate = new Date(startDate);
+            endDate.setDate(endDate.getDate() + (tourDuration - 1));
+            console.log('Dynamic End Date:', endDate);
+
+            // 5. CALCULATE ACTUAL DAYS
+            const daysCount = tourDuration;
+
+            return {
+                startDate: startDate,
+                endDate: endDate,
+                daysCount: daysCount
+            };
+        }
+
+        function formatDateToYYYYMMDD(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function formatDateDisplay(date) {
+            const monthNames = [
+                "January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"
+            ];
+            const day = date.getDate();
+            const month = monthNames[date.getMonth()];
+            const year = date.getFullYear();
+            return `${day} ${month} ${year}`;
+        }
+
+
+        function calculateTourDates(dateObj) {
+            console.log(' Calculating dates for:', dateObj);
+
+            // 1. PARSE THE SELECTED DATE
+            const selectedMonth = dateObj.month;
+            const selectedYear = parseInt(dateObj.year);
+            const startDay = parseInt(dateObj.start);
+
+            // Month name to number (0-11)
+            const monthNames = {
+                "January": 0, "February": 1, "March": 2, "April": 3, "May": 4, "June": 5,
+                "July": 6, "August": 7, "September": 8, "October": 9, "November": 10, "December": 11
+            };
+
+            const monthNumber = monthNames[selectedMonth];
+
+            // 2. CREATE START DATE (First day of selected date range)
+            const startDate = new Date(selectedYear, monthNumber, startDay);
+            console.log('Start date created:', startDate);
+
+            // 3. DETERMINE TOUR DURATION BASED ON PAGE
+            const pagePath = window.location.pathname.toLowerCase();
+            let tourDuration = 10; // Default
+
+            if (pagePath.includes('12-days') || pagePath.includes('12days')) {
+                tourDuration = 12;
+            } else if (pagePath.includes('14-days') || pagePath.includes('14days')) {
+                tourDuration = 14;
+            } else if (pagePath.includes('7-days') || pagePath.includes('7days')) {
+                tourDuration = 7;
+            }
+
+            console.log('Tour duration determined:', tourDuration, 'days');
+
+            // 4. CALCULATE END DATE (Start date + tour duration - 1)
+            const endDate = new Date(startDate);
+            endDate.setDate(endDate.getDate() + (tourDuration - 1));
+
+            // 5. CALCULATE ACTUAL DAYS COUNT
+            const daysCount = tourDuration;
+
+            return {
+                startDate: startDate,
+                endDate: endDate,
+                daysCount: daysCount
+            };
+        }
+
+        function formatDateToYYYYMMDD(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function formatDateDisplay(date) {
+            const monthNames = [
+                "January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"
+            ];
+            const day = date.getDate();
+            const month = monthNames[date.getMonth()];
+            const year = date.getFullYear();
+            return `${day} ${month} ${year}`;
         }
 
         document.querySelectorAll(".travel-step .pill").forEach(btn => {
@@ -725,4 +951,5 @@
         initPage();
     </script>
 </body>
+
 </html>
