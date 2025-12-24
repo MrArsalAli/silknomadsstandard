@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -453,6 +454,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="tour-wrapper">
         <div class="step travel-step">
@@ -656,80 +658,86 @@
             params.append('price', salePrice.toString());
 
             const redirectURL = `${baseURL}?${params.toString()}`;
-            console.log('Redirect URL:', redirectURL);
+            console.log(redirectURL);
 
             // 7. REDIRECT
             window.location.href = redirectURL;
-        }
 
-        // Helper functions
-        function getMonthNumber(monthName) {
-            const months = {
-                "January": 0, "February": 1, "March": 2, "April": 3, "May": 4, "June": 5,
-                "July": 6, "August": 7, "September": 8, "October": 9, "November": 10, "December": 11
-            };
-            return months[monthName] || 2;
-        }
+            if (window.top !== window.self) {
+                window.top.location.href = redirectURL;
+            } else {
+                window.location.href = redirectURL;
+            }
 
-        function formatDateToYYYYMMDD(date) {
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        }
+            // Helper functions
+            function getMonthNumber(monthName) {
+                const months = {
+                    "January": 0, "February": 1, "March": 2, "April": 3, "May": 4, "June": 5,
+                    "July": 6, "August": 7, "September": 8, "October": 9, "November": 10, "December": 11
+                };
+                return months[monthName] || 2;
+            }
 
-        document.querySelectorAll(".travel-step .pill").forEach(btn => {
-            btn.onclick = () => {
-                document.querySelectorAll(".travel-step .pill").forEach(b => b.classList.remove("active"));
-                btn.classList.add("active");
-                selectedType = btn.dataset.type;
+            function formatDateToYYYYMMDD(date) {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
 
-                // Description show karo
-                const descriptionBox = document.getElementById('descriptionBox');
-                const descriptionText = document.getElementById('descriptionText');
-                descriptionText.innerHTML = travelDescriptions[selectedType];
-                descriptionBox.style.display = 'block';
+            document.querySelectorAll(".travel-step .pill").forEach(btn => {
+                btn.onclick = () => {
+                    document.querySelectorAll(".travel-step .pill").forEach(b => b.classList.remove("active"));
+                    btn.classList.add("active");
+                    selectedType = btn.dataset.type;
 
-                if (selectedSeason) renderDates();
-            };
-        });
+                    // Description show karo
+                    const descriptionBox = document.getElementById('descriptionBox');
+                    const descriptionText = document.getElementById('descriptionText');
+                    descriptionText.innerHTML = travelDescriptions[selectedType];
+                    descriptionBox.style.display = 'block';
 
-        document.querySelectorAll(".season-step .pill").forEach(btn => {
-            btn.onclick = () => {
-                if (!selectedType) {
-                    btn.style.animation = 'shake 0.5s';
-                    setTimeout(() => btn.style.animation = '', 500);
-                    return;
-                }
+                    if (selectedSeason) renderDates();
+                };
+            });
 
-                document.querySelectorAll(".season-step .pill").forEach(b => b.classList.remove("active"));
-                btn.classList.add("active");
-                selectedSeason = btn.dataset.season;
-                visibleMonths = 3;
+            document.querySelectorAll(".season-step .pill").forEach(btn => {
+                btn.onclick = () => {
+                    if (!selectedType) {
+                        btn.style.animation = 'shake 0.5s';
+                        setTimeout(() => btn.style.animation = '', 500);
+                        return;
+                    }
+
+                    document.querySelectorAll(".season-step .pill").forEach(b => b.classList.remove("active"));
+                    btn.classList.add("active");
+                    selectedSeason = btn.dataset.season;
+                    visibleMonths = 3;
+                    renderDates();
+                };
+            });
+
+            function initPage() {
                 renderDates();
-            };
-        });
 
-        function initPage() {
-            renderDates();
+                const urlParams = new URLSearchParams(window.location.search);
+                const tourType = urlParams.get('tourType');
+                const season = urlParams.get('season');
 
-            const urlParams = new URLSearchParams(window.location.search);
-            const tourType = urlParams.get('tourType');
-            const season = urlParams.get('season');
+                if (tourType && season) {
+                    const typeBtn = document.querySelector(`.travel-step .pill[data-type="${tourType}"]`);
+                    const seasonBtn = document.querySelector(`.season-step .pill[data-season="${season}"]`);
 
-            if (tourType && season) {
-                const typeBtn = document.querySelector(`.travel-step .pill[data-type="${tourType}"]`);
-                const seasonBtn = document.querySelector(`.season-step .pill[data-season="${season}"]`);
-
-                if (typeBtn && seasonBtn) {
-                    typeBtn.click();
-                    seasonBtn.click();
+                    if (typeBtn && seasonBtn) {
+                        typeBtn.click();
+                        seasonBtn.click();
+                    }
                 }
             }
-        }
 
-        initPage();
+            initPage();
     </script>
 
 </body>
+
 </html>
