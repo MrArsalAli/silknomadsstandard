@@ -661,12 +661,11 @@
             console.log(redirectURL);
 
             // 7. REDIRECT
-            window.location.href = redirectURL;
-
             if (window.top !== window.self) {
                 window.top.location.href = redirectURL;
             } else {
                 window.location.href = redirectURL;
+            }
             }
 
             // Helper functions
